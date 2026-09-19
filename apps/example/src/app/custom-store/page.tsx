@@ -8,6 +8,10 @@ type Props = {
   params: Promise<{ chatId?: string[] }>;
 };
 
+// ChatInterface reads URL state via nuqs (useSearchParams), which needs
+// this route to opt out of static prerendering.
+export const dynamic = "force-dynamic";
+
 export default async function Page({ params }: Props) {
   const { chatId } = await params;
 
