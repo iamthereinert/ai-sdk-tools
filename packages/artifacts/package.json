@@ -56,7 +56,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
-    "@ai-sdk/react": "beta",
+    "@ai-sdk/react": "^2.0.97",
     "@types/react": "^19.2.6",
     "typescript": "^5.9.3",
     "tsup": "^8.5.1",
