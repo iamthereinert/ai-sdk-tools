@@ -17,13 +17,11 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 jobs:
-  build:
-    name: Build
+  build-and-deploy:
+    name: Build and Deploy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -48,26 +46,14 @@ jobs:
           DEPLOY_TARGET: github-pages
         run: bun run build
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
+      # Publishes apps/website/out to the gh-pages branch. This avoids the
+      # Pages REST API entirely (POST /repos/{owner}/{repo}/pages), which
+      # requires repo admin rights the default GITHUB_TOKEN doesn't have
+      # and fails with "Resource not accessible by integration" the first
+      # time a repo's Pages site is created via "GitHub Actions" source.
+      # A branch push only needs `contents: write`, which GITHUB_TOKEN has.
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          # Self-heal if Pages hasn't been switched to "GitHub Actions" as
-          # its build source yet, instead of failing the whole run.
-          enablement: true
-
-      - name: Upload Artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: apps/website/out
-
-  deploy:
-    name: Deploy
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: apps/website/out
